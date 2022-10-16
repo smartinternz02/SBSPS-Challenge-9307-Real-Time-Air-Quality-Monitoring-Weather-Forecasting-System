@@ -5,6 +5,7 @@ import json
 import os
 import csv
 from datetime import datetime
+import datetime
 def weatherbit(latitude,longitude):
     df=pd.read_csv('files/datasets/data.csv')
     print(df)
@@ -41,5 +42,7 @@ def rapidapi(location,latitude,longitude):
     #df=df.drop(['Unnamed: 0.1'],axis=0)
     os.remove("files/datasets/rapid.csv")
     df.to_csv('files/datasets/rapid.csv')
-    
     return data
+
+def histroy_rapidapi():
+    return False

@@ -2,25 +2,83 @@
 <html>
 <body style="font-family:arial, sans-serif">
  <style>
-    .div{
-        margin-left: 100px;
-        margin-right: 100px;
+    .margins{ 
+        margin-left: 1000px;
+        margin-right: 1000px;
     }
+    .grid-container {
+         display : flex;
+          background-color: none;
+          padding: 2px;
+        }
+        .grid-item {
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 2px;
+          font-size: 30px;
+          text-align: center;
+          width : 900%
+        }
 
  </style>
-    <h6><a href="/">Return to index page</a></h6>
-    <div id="chart" class="chart"></div>
-   
-    <div id="chart1" class="chart"></div>
+    <div class="grid-container">
+        <div class="grid-item">
+            <div id="graph_aqi" class="chart"></div>
+        </div>
+      </div>
+    <div class="grid-container">
+        <div class="grid-item">
+            <div id="graph_pm10" class="chart"></div>
+        </div>
+        <div class="grid-item">
+            <div id="graph_pm25" class="chart"></div>
+        </div>
+    </div>
+    <div class="grid-container">
+        <div class="grid-item">
+            <div id="graph_no2" class="chart"></div>
+        </div>
+        <div class="grid-item">
+            <div id="graph_so2" class="chart"></div>
+        </div>
+    </div>
+    <div class="grid-container">
+        <div class="grid-item">
+            <div id="graph_o3" class="chart"></div>
+        </div>
+        <div class="grid-item">
+            <div id="graph_co" class="chart"></div>
+        </div>
+    </div>
+    <iframe src="https://us3.ca.analytics.ibm.com/bi/?perspective=dashboard&amp;pathRef=.my_folders%2FAVERAGE%2BPM2.5&amp;closeWindowOnLastView=true&amp;ui_appbar=false&amp;ui_navbar=false&amp;shareMode=embedded&amp;action=view&amp;mode=dashboard&amp;subView=model000001836b0abc25_00000002" width="920" height="400" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen=""></iframe>
 </body>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript">
-    var graphs = {{graphJSON | safe}};
-    Plotly.plot('chart',graphs,{});   
+    var graph_aqi = {{ graph_aqi| safe}};
+    Plotly.plot('graph_aqi',graph_aqi,{});    
 </script>
 <script type="text/javascript">
-    var graphs1= {{graph | safe}};
-    Plotly.plot('chart1',graphs1,{});   
+    var graph_pm10= {{graph_pm10 | safe}};
+    Plotly.plot('graph_pm10',graph_pm10,{});     
+</script>
+<script type="text/javascript">
+    var graph_pm25= {{graph_pm25 | safe}};  
+    Plotly.plot('graph_pm25',graph_pm25,{});   
+</script>
+<script type="text/javascript">
+    var graph_so2= {{graph_so2 | safe}};  
+    Plotly.plot('graph_so2',graph_so2,{});   
+</script>
+<script type="text/javascript">
+    var graph_no2= {{graph_no2 | safe}};  
+    Plotly.plot('graph_no2',graph_no2,{});   
+</script>
+<script type="text/javascript">
+    var graph_co= {{graph_co | safe}};  
+    Plotly.plot('graph_co',graph_co,{});   
+</script>
+<script type="text/javascript">
+    var graph_o3= {{graph_o3 | safe}};  
+    Plotly.plot('graph_o3',graph_o3,{});   
 </script>
 </html>
