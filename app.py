@@ -334,6 +334,33 @@ def find_aqi():
 @app.route('/404')
 def notfound_404():
     return render_template('404.html')
+
+@app.route('/login',methods =['GET', 'POST'])
+def login():
+    global userid
+    msg = ''
+    if request.method == 'POST' :
+        username = request.form['username']
+        password = request.form['password']
+        sql = "SELECT * FROM users WHERE username =? AND password=?"
+        stmt = ibm_db.prepare(conn, sql)
+        ibm_db.bind_param(stmt,1,username)
+        ibm_db.bind_param(stmt,2,password)
+        ibm_db.execute(stmt)
+        account = ibm_db.fetch_assoc(stmt)
+        print (account)
+        if account:
+            session['loggedin'] = True
+            session['id'] = account['USERNAME']
+            userid=  account['USERNAME']
+            session['username'] = account['USERNAME']
+            msg = 'Logged in successfully !'
+            
+            msg = 'Logged in successfully !'
+        else:
+            msg = 'Incorrect username / password !'
+    return render_template('404.html', msg = msg)
+
 @app.route('/graph-view')
 def graph():
     df=pd.read_csv('files/datasets/aqi_predicted_hour_data.csv')
