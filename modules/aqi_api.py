@@ -87,3 +87,7 @@ print(x)
 print(y)
 
 """
+
+
+def weatherpred():
+    print("Hellow")

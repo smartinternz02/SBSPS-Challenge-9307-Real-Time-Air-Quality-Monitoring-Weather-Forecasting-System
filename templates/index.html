@@ -5,7 +5,11 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
 		
-		<title>AQI and Weather Forecasting</title>
+		<title>Weather Forecasting</title>
+
+		<link rel="icon" 
+      type="image/png" 
+      href="/static/images/logo.png">
 
 		<!-- Loading third party fonts -->
 		<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,700|" rel="stylesheet" type="text/css">
@@ -43,7 +47,7 @@
 							<!-- <li class="menu-item"><a href="/news">News</a></li>
 							<li class="menu-item"><a href="/live-cameras">Live cameras</a></li> -->
 							<li class="menu-item"><a href="/photos">Photos</a></li>
-							<li class="menu-item"><a href="/contact">Contact</a></li>
+							<li class="menu-item"><a href="/Subscribe">Subscribe</a></li>
 							<li class="menu-item"><a href="/aqi">Air Quality Index</a></li>
 						</ul> <!-- .menu -->
 					</div> <!-- .main-navigation -->
@@ -55,11 +59,11 @@
 
 			<div class="hero" data-bg-image="images/banner.png">
 				<div class="container">
-					<form action="/find-aqi-of-place" class="find-location" method="POST">
-						<input type="text" name="autocomplete" id="autocomplete" placeholder="Find your location..." required>
+					<form action="/" class="find-location" method="GET">
+						<input type="text" name="location" id="autocomplete" placeholder="Find your location..." required>
 						<input type="hidden" id="latitude" name="latitude" class="form-control">
-						<input type="hidden" name="longitude" id="longitude" class="form-control">
-						<input type="submit" value="Find">
+						<input type="hidden" name="longitude" id="longitude" class="form-control"> <br>
+						<button type="submit">Find</button>
 					</form>
 				</div>
 			</div>
@@ -140,14 +144,6 @@
 					</div>
 				</div>
 				<div>
-					<!-- <img src="/static/images/icons/icon-1.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-2.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-3.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-4.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-5.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-6.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-7.svg" alt="" width=48>
-					<img src="/static/images/icons/icon-8.svg" alt="" width=48> -->
 					
 				</div>
 				<div class="grid-item">
@@ -162,22 +158,7 @@
 			
 			<footer class="site-footer">
 				<div class="container">
-					<div class="row">
-						<div class="col-md-8">
-							<form action="#" class="subscribe-form">
-								<input type="text" placeholder="Enter your email to subscribe...">
-								<input type="submit" value="Subscribe">
-							</form>
-						</div>
-						<div class="col-md-3 col-md-offset-1">
-							<div class="social-links">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-google-plus"></i></a>
-								<a href="#"><i class="fa fa-pinterest"></i></a>
-							</div>
-						</div>
-					</div>
+			
 
 					<p class="colophon">All rights reserved</p>
 				</div>
@@ -221,6 +202,7 @@
 			var graph_weather1 = {{ graph_weather1| safe}};
 			Plotly.plot('graph_weather',graph_weather1,{});    
 		</script>
+		
 	</body>
 
 </html>

@@ -5,7 +5,11 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
 		
-		<title>AQI and Weather Forecasting</title>
+		<title>Air Quality Index</title>
+
+		<link rel="icon" 
+      type="image/png" 
+      href="https://aqicn.org/air/experiments/images/aqi-transparent.png">
 
 		<!-- Loading third party fonts -->
 		<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,700|" rel="stylesheet" type="text/css">
@@ -47,7 +51,7 @@
 			<div class="site-header">
 				<div class="container">
 					<a href="/" class="branding">
-						<img src="/static/images/logo.png" alt="" class="logo">
+						<img src="https://aqicn.org/air/experiments/images/aqi-transparent.png" alt="" class="logo" height="40" width="40">
 						<div class="logo-type">
 							<h1 class="site-title"></h1>
 							<small class="site-description"></small>
@@ -62,7 +66,7 @@
 							<!-- <li class="menu-item"><a href="/news">News</a></li>
 							<li class="menu-item"><a href="/live-cameras">Live cameras</a></li> -->
 							<li class="menu-item"><a href="/photos">Photos</a></li>
-							<li class="menu-item"><a href="/contact">Contact</a></li>
+							<li class="menu-item"><a href="/Subscribe">Subscribe</a></li>
 							<li class="menu-item current-menu-item"><a href="/aqi">Air Quality Index</a></li>
 						</ul> <!-- .menu -->
 					</div> <!-- .main-navigation -->
@@ -75,13 +79,14 @@
 			<div class="hero" data-bg-image="images/banner.png">
 				<div class="container">
 					<form action="/aqi" class="find-location" method="POST">
-						<input type="text" name="autocomplete" id="autocomplete" placeholder="Find your location..." required>
+						<input type="text" name="location" id="autocomplete" placeholder="Find your location..." required>
 						<input type="hidden" id="latitude" name="latitude" class="form-control">
 						<input type="hidden" name="longitude" id="longitude" class="form-control">
-						<input type="submit" value="Find">
+						<button type="submit">Find</button>
 					</form>
 				</div>
 			</div>
+
 			<div class="forecast-table">
 				<div class="container">
 					<div class="forecast-container">
@@ -91,7 +96,7 @@
 								<div class="date">{{date}} {{month}}</div>
 							</div> <!-- .forecast-header -->
 							<div class="forecast-content">
-								<div class="location">New Delhi</div>
+								<div class="location">{{ location }}</div>
 								<div class="degree">
 									<div class="num">{{data['overall_aqi']}}</div>
 									<!-- <div class="forecast-icon">
@@ -175,9 +180,15 @@
 				<div class="container">
 					<div class="row">
 						<div class="col-md-8">
-							<form action="#" class="subscribe-form">
-								<input type="text" placeholder="Enter your email to subscribe...">
-								<input type="submit" value="Subscribe">
+							<form action="/Subscribe" method="POST" class="subscribe-form">
+								<h1>Subscribe to get latest updates on your Mobile</h1>
+								<input type="text" name="name" placeholder="Enter your Name..." required><hr>
+								<input type="text" name="email" placeholder="Enter your Email..." ><hr>
+								<input type="text" name="mobile" placeholder="Enter your Mobile..." ><hr>
+								<input type="text" name="location" id="autocomplete1" placeholder="Enter your location..." required>
+								<input type="hidden" name="latitude" id="latitude1" class="form-control">
+								<input type="hidden" name="longitude" id="longitude1" class="form-control">
+								<button type="submit">Subscribe</button>
 							</form>
 						</div>
 						
@@ -205,7 +216,6 @@
 			function initialize() {
 				var input = document.getElementById('autocomplete');
 				var autocomplete = new google.maps.places.Autocomplete(input);
-
 				autocomplete.addListener('place_changed', function () {
 					var place = autocomplete.getPlace();
 					$('#latitude').val(place.geometry['location'].lat());

@@ -10,11 +10,8 @@ from datetime import date
 import requests
 import json
 import ibm_db
-
-# Flask app
-import flask
-from flask import Flask, render_template, request, redirect, url_for, session
-
+import calendar
+import time
 # importing graphs
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -43,6 +40,12 @@ from modules.aqi_index_calculation import *
 from modules.weather_prediction import *
 from modules.aqi_api import *
 #  from tempfile.timeseries import *
+
+
+# Flask app
+import flask
+from flask import Flask, render_template,redirect, url_for, session,request
+
 
 
 # ibm Database
@@ -204,6 +207,9 @@ def weatherdays(test):
 
 
 app = Flask(__name__)
+
+
+
 @app.route('/',methods=['GET','POST'])    
 @app.route('/home')
 def login():
@@ -221,49 +227,34 @@ def login():
     else:
         print("x")
 
-@app.route('/news')    
-def news():
-    return render_template('404.html')
-@app.route('/contact')    
-def contact():
-    return render_template('404.html')
-@app.route('/live-cameras')    
-def live_cameras():
-    return render_template('404.html')
-@app.route('/photos')    
-def photos():
-    return render_template('404.html')
 
-@app.route('/aqi',methods=['POST','GET'])
+
+
+
+@app.route('/aqi',methods=['GET','POST'])
 def aqi():
-        global location1
         if flask.request.method == 'POST':  
-            print(request.args.get('location'))
-            x = [x for x in request.form.values()]
-            print(x)
-            location=x[0]
-            location1=x[0]
-            latitude=x[1]
-            longitude=x[2]
+            #print(request.args.get('location'))
+            location=request.form.get('location')
+            # location1=request.form.get('location')
+            latitude=request.form.get('latitude')
+            longitude=request.form.get('longitude')
             location=location.split(',')
             location=location[0]
-            if(len(x[1])>0 and len(x[2])>0):
-                location=x[0]
-                latitude=x[1]
-                longitude=x[2]
+            if(len(latitude)>0 and len(longitude)>0):
                 #data={'CO': {'concentration': 961.3, 'aqi': 10}, 'NO2': {'concentration': 50.04, 'aqi': 62}, 'O3': {'concentration': 30.76, 'aqi': 26}, 'SO2': {'concentration': 79.16, 'aqi': 70}, 'PM2.5': {'concentration': 45.22, 'aqi': 109}, 'PM10': {'concentration': 57.56, 'aqi': 51}, 'overall_aqi': 109}
                 date = datetime.today()
                 month=date.strftime('%b')
                 da=date.strftime('%d')
                 df=aqipredict(latitude,longitude)
                 df=df.rename(columns={'aqi':'AQI','so2':'SO2','no2':'NO2','pm10':'PM10','pm25':'PM2.5','co':'CO','o3':'O3','timestamp_local':'Date-Time'})
-                fig_aqi= px.bar(df, x="Date-Time", y='AQI',color="AQI",  barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="AQI "+location)
-                fig_so2 = px.bar(df, x="Date-Time", y='SO2', color="SO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="SO2 Concentration "+location)
-                fig_no2= px.bar(df, x="Date-Time", y='NO2', color="NO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="NO2 Concentrations "+location)
-                fig_o3 = px.bar(df, x="Date-Time", y='O3', color="O3", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="O3 Concentrations "+location)
-                fig_co= px.bar(df, x="Date-Time", y='CO', color="CO", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="CO Concentrations "+location)
-                fig_PM10= px.bar(df, x="Date-Time", y='PM10', color="PM10", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM10 Concentrations "+location)
-                fig_PM25= px.bar(df, x="Date-Time", y='PM2.5', color="PM2.5", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM2.5 Concentrations "+location)
+                fig_aqi= px.bar(df, x="Date-Time", y='AQI',color="AQI",  barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="AQI of "+location)
+                fig_so2 = px.bar(df, x="Date-Time", y='SO2', color="SO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="SO2 Concentration of "+location)
+                fig_no2= px.bar(df, x="Date-Time", y='NO2', color="NO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="NO2 Concentrations of "+location)
+                fig_o3 = px.bar(df, x="Date-Time", y='O3', color="O3", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="O3 Concentrations of "+location)
+                fig_co= px.bar(df, x="Date-Time", y='CO', color="CO", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="CO Concentrations of "+location)
+                fig_PM10= px.bar(df, x="Date-Time", y='PM10', color="PM10", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM10 Concentrations of "+location)
+                fig_PM25= px.bar(df, x="Date-Time", y='PM2.5', color="PM2.5", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM2.5 Concentrations of"+location)
                 graph_aqi = json.dumps(fig_aqi,cls=plotly.utils.PlotlyJSONEncoder)
                 graph_so2= json.dumps(fig_so2,cls=plotly.utils.PlotlyJSONEncoder)
                 graph_no2= json.dumps(fig_no2,cls=plotly.utils.PlotlyJSONEncoder)
@@ -278,25 +269,23 @@ def aqi():
                                                          'SO2': {'max':df['SO2'].max(), 'min':df['SO2'].min(),'avg':df['SO2'].mean() },
                                                          'PM2.5': {'max':df['PM2.5'].max(), 'min':df['PM2.5'].min(),'avg':df['PM2.5'].mean() },
                                                          'PM10': {'max':df['PM10'].max(), 'min':df['PM10'].min(),'avg':df['PM10'].mean() } },
-                                                         AQI={'max':df['AQI'].max(),'avg':df['AQI'].mean(),'min':df['AQI'].min()},month=month,date=da,graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25)
+                                                         AQI={'max':df['AQI'].max(),'avg':df['AQI'].mean(),'min':df['AQI'].min()},month=month,date=da,graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25,location=location)
             else:
                 return render_template('404.html')
-        else:
+        elif flask.request.method == 'GET':
             loc="Delhi"
             date = datetime.today()
             month=date.strftime('%b')
             da=date.strftime('%d')
-            #df=pd.read_csv('files/datasets/aqi_predicted_hour_data.csv')
-            # default delhi prediction
             df=aqipredict(28.7041,77.1025)
             df=df.rename(columns={'aqi':'AQI','so2':'SO2','no2':'NO2','pm10':'PM10','pm25':'PM2.5','co':'CO','o3':'O3','timestamp_local':'Date-Time'})
-            fig_aqi= px.bar(df, x="Date-Time", y='AQI',color="AQI",  barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="AQI "+loc)
-            fig_so2 = px.bar(df, x="Date-Time", y='SO2', color="SO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="SO2 Concentration "+loc)
-            fig_no2= px.bar(df, x="Date-Time", y='NO2', color="NO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="NO2 Concentrations "+loc)
-            fig_o3 = px.bar(df, x="Date-Time", y='O3', color="O3", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="O3 Concentrations "+loc)
-            fig_co= px.bar(df, x="Date-Time", y='CO', color="CO", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="CO Concentrations "+loc)
-            fig_PM10= px.bar(df, x="Date-Time", y='PM10', color="PM10", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM10 Concentrations "+loc)
-            fig_PM25= px.bar(df, x="Date-Time", y='PM2.5', color="PM2.5", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM2.5 Concentrations "+loc)
+            fig_aqi= px.bar(df, x="Date-Time", y='AQI',color="AQI",  barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="AQI of "+loc)
+            fig_so2 = px.bar(df, x="Date-Time", y='SO2', color="SO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="SO2 Concentration of "+loc)
+            fig_no2= px.bar(df, x="Date-Time", y='NO2', color="NO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="NO2 Concentrations of "+loc)
+            fig_o3 = px.bar(df, x="Date-Time", y='O3', color="O3", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="O3 Concentrations of "+loc)
+            fig_co= px.bar(df, x="Date-Time", y='CO', color="CO", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="CO Concentrations of "+loc)
+            fig_PM10= px.bar(df, x="Date-Time", y='PM10', color="PM10", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM10 Concentrations of "+loc)
+            fig_PM25= px.bar(df, x="Date-Time", y='PM2.5', color="PM2.5", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM2.5 Concentrations of"+loc)
             graph_aqi = json.dumps(fig_aqi,cls=plotly.utils.PlotlyJSONEncoder)
             graph_so2= json.dumps(fig_so2,cls=plotly.utils.PlotlyJSONEncoder)
             graph_no2= json.dumps(fig_no2,cls=plotly.utils.PlotlyJSONEncoder)
@@ -305,13 +294,15 @@ def aqi():
             graph_pm10= json.dumps(fig_PM10,cls=plotly.utils.PlotlyJSONEncoder)
             graph_pm25= json.dumps(fig_PM25,cls=plotly.utils.PlotlyJSONEncoder)
             # return render_template('graph.html',graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25)
-            return render_template('aqi.html',location=loc,data={'CO': {'max':df['CO'].max(), 'min':df['CO'].min(),'avg':df['CO'].mean() },
+            return render_template('aqi.html',data={'CO': {'max':df['CO'].max(), 'min':df['CO'].min(),'avg':df['CO'].mean() },
                                                          'NO2': {'max':df['NO2'].max(), 'min':df['NO2'].min(),'avg':df['NO2'].mean() }, 
                                                          'O3': {'max':df['O3'].max(), 'min':df['O3'].min(),'avg':df['O3'].mean() },
                                                          'SO2': {'max':df['SO2'].max(), 'min':df['SO2'].min(),'avg':df['SO2'].mean() },
                                                          'PM2.5': {'max':df['PM2.5'].max(), 'min':df['PM2.5'].min(),'avg':df['PM2.5'].mean() },
                                                          'PM10': {'max':df['PM10'].max(), 'min':df['PM10'].min(),'avg':df['PM10'].mean() } },
-                                                         AQI={'max':df['AQI'].max(),'avg':df['AQI'].mean(),'min':df['AQI'].min()},month=month,date=da,graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25)
+                                                         AQI={'max':df['AQI'].max(),'avg':df['AQI'].mean(),'min':df['AQI'].min()},month=month,date=da,graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25,location="Delhi")
+        else:
+          return render_template('404.html')
        
 @app.route('/find-aqi-of-place',methods=['POST'])
 def find_aqi():
@@ -326,60 +317,134 @@ def find_aqi():
         date = datetime.today()
         month=date.strftime('%b')
         da=date.strftime('%d')
-        #print('-------------------========================================================-======',date,month,da)
-
+        #print('-------------------========================================================-======',date,month,da
     
         return render_template('aqi.html',data={'CO': {'concentration': 961.3, 'aqi': 10}, 'NO2': {'concentration': 50.04, 'aqi': 62}, 'O3': {'concentration': 30.76, 'aqi': 26}, 'SO2': {'concentration': 79.16, 'aqi': 70}, 'PM2.5': {'concentration': 45.22, 'aqi': 109}, 'PM10': {'concentration': 57.56, 'aqi': 51}, 'overall_aqi': 109},month=month,date=da)
     return render_template('404.html')
+
+
+
+@app.route('/news')    
+def news():
+    return render_template('404.html')
+
+@app.route('/Subscribe')    
+def contact():
+    return render_template('contact.html')
+
+@app.route('/live-cameras')    
+def live_cameras():
+    return render_template('404.html')
+
+@app.route('/photos')    
+def photos():
+    return render_template('404.html')
+
 @app.route('/404')
 def notfound_404():
     return render_template('404.html')
 
-@app.route('/login',methods =['GET', 'POST'])
-def login():
-    global userid
+
+@app.route('/subscribe', methods =['GET', 'POST'])
+def registet():
     msg = ''
     if request.method == 'POST' :
-        username = request.form['username']
-        password = request.form['password']
-        sql = "SELECT * FROM users WHERE username =? AND password=?"
+        name = request.form['name']
+        email = request.form['email']
+        mobile = request.form['mobile']
+        location = request.form['location']
+        latitude = request.form['latitude']
+        longitude = request.form['longitude']
+        sql = "SELECT * FROM users WHERE email =? OR mobile=?"
         stmt = ibm_db.prepare(conn, sql)
-        ibm_db.bind_param(stmt,1,username)
-        ibm_db.bind_param(stmt,2,password)
+        ibm_db.bind_param(stmt,1,email)
+        ibm_db.bind_param(stmt,2,mobile)
         ibm_db.execute(stmt)
         account = ibm_db.fetch_assoc(stmt)
-        print (account)
+        print(account)
         if account:
-            session['loggedin'] = True
-            session['id'] = account['USERNAME']
-            userid=  account['USERNAME']
-            session['username'] = account['USERNAME']
-            msg = 'Logged in successfully !'
-            
-            msg = 'Logged in successfully !'
+            msg = 'Account already exists !'
+            return msg
         else:
-            msg = 'Incorrect username / password !'
-    return render_template('404.html', msg = msg)
-
-@app.route('/graph-view')
-def graph():
-    df=pd.read_csv('files/datasets/aqi_predicted_hour_data.csv')
-    df=df.rename(columns={'aqi':'AQI','so2':'SO2','no2':'NO2','pm10':'PM10','pm25':'PM2.5','co':'CO','o3':'O3','timestamp_local':'Date-Time'})
-    fig_aqi= px.bar(df, x="Date-Time", y='AQI',color="AQI",  barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="AQI")
-    fig_so2 = px.bar(df, x="Date-Time", y='SO2', color="SO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="SO2 Concentration")
-    fig_no2= px.bar(df, x="Date-Time", y='NO2', color="NO2", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="NO2 Concentrations")
-    fig_o3 = px.bar(df, x="Date-Time", y='O3', color="O3", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="O3 Concentrations")
-    fig_co= px.bar(df, x="Date-Time", y='CO', color="CO", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="CO Concentrations")
-    fig_PM10= px.bar(df, x="Date-Time", y='PM10', color="PM10", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM10 Concentrations")
-    fig_PM25= px.bar(df, x="Date-Time", y='PM2.5', color="PM2.5", barmode="stack",color_continuous_scale=["green", "yellow","orange","red"],title="PM2.5 Concentrations")
-    graph_aqi = json.dumps(fig_aqi,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_so2= json.dumps(fig_so2,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_no2= json.dumps(fig_no2,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_o3= json.dumps(fig_o3,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_co= json.dumps(fig_co,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_pm10= json.dumps(fig_PM10,cls=plotly.utils.PlotlyJSONEncoder)
-    graph_pm25= json.dumps(fig_PM25,cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('graph.html',graph_aqi=graph_aqi,graph_so2=graph_so2,graph_no2=graph_no2,graph_o3=graph_o3,graph_co=graph_co,graph_pm10=graph_pm10,graph_pm25=graph_pm25)
+            insert_sql = "INSERT INTO  users VALUES (?,?,?,?,?,?)"
+            prep_stmt = ibm_db.prepare(conn, insert_sql)
+            ibm_db.bind_param(prep_stmt,1,name)
+            ibm_db.bind_param(prep_stmt,2,email)
+            ibm_db.bind_param(prep_stmt,3,mobile)
+            ibm_db.bind_param(prep_stmt,4,location)
+            ibm_db.bind_param(prep_stmt,5,latitude)
+            ibm_db.bind_param(prep_stmt,6,longitude) 
+            ibm_db.execute(prep_stmt)   
+            msg = 'You have successfully registered !'
+            return render_template('success.html',msg)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @app.route('/login',methods =['GET', 'POST'])
+# def login():
+#     global userid
+#     msg = ''
+#     if request.method == 'POST' :
+#         username = request.form['username']
+#         password = request.form['password']
+#         sql = "SELECT * FROM users WHERE username =? AND password=?"
+#         stmt = ibm_db.prepare(conn, sql)
+#         ibm_db.bind_param(stmt,1,username)
+#         ibm_db.bind_param(stmt,2,password)
+#         ibm_db.execute(stmt)
+#         account = ibm_db.fetch_assoc(stmt)
+#         print (account)
+#         if account:
+#             session['loggedin'] = True
+#             session['id'] = account['USERNAME']
+#             userid=  account['USERNAME']
+#             session['username'] = account['USERNAME']
+#             msg = 'Logged in successfully !'
+            
+#             msg = 'Logged in successfully !'
+#         else:
+#             msg = 'Incorrect username / password !'
+#     return render_template('404.html', msg = msg)
+
+
+
+# @app.route('/s', methods=['POST'])
+# def subscribe():
+#     msg = ''
+#     if request.method == 'POST' :
+#         name = request.form['name']
+#         email = request.form['email']
+#         mobile = request.form['mobile']
+#         location = request.form['location']
+#         latitude = request.form['latitude']
+#         longitude = request.form['longitude']
+#         print(latitude,longitude)
+#         insert_sql = "INSERT INTO  users VALUES (?,?,?,?,?,?)"
+#         prep_stmt = ibm_db.prepare(conn, insert_sql)
+#         ibm_db.bind_param(prep_stmt,1,name)
+#         ibm_db.bind_param(prep_stmt,2,email)
+#         ibm_db.bind_param(prep_stmt,3,mobile)
+#         ibm_db.bind_param(prep_stmt,4,location)
+#         ibm_db.bind_param(prep_stmt,5,latitude)
+#         ibm_db.bind_param(prep_stmt,6,longitude) 
+#         ibm_db.execute(prep_stmt)   
+#         msg = 'You have successfully registered !'
+#         print(msg)
+#         return render_template('success.html')
