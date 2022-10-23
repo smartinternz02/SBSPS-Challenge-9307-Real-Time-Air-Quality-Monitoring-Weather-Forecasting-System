@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 
+from mailjet_rest import Client
+import os
 # training models
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -182,6 +184,7 @@ def Air_quality():
 
 #  df.to_csv("aqi_data.csv")
 # logo convertion
+df=pd.read_csv('files/datasets/weather.csv')
 def weatherdays(test):
   j=0
   test['Day']=''
@@ -213,10 +216,28 @@ app = Flask(__name__)
 @app.route('/',methods=['GET','POST'])    
 @app.route('/home')
 def login():
+    global df
     if flask.request.method == 'GET': 
+      try:
         df=pd.read_csv('files/datasets/weather.csv')
+        location=request.args.get('location')
+        #df=pd.read_csv('files/datasets/weather.csv')
         weather=weatherdays(df)
-        print(df)
+        #print(df)
+        df=df[['timestamp_local','temp']]
+        df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
+        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius)")
+        graph_weather = json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
+        fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of "+location)
+        graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
+
+        # ==========================================================
+
+
+        # ==========================================================
+        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1)
+      except :
+        df=pd.read_csv('files/datasets/weather.csv')
         df=df[['timestamp_local','temp']]
         df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
         fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius)")
@@ -224,8 +245,7 @@ def login():
         fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of Delhi")
         graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
         return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1)
-    else:
-        print("x")
+
 
 
 
@@ -345,6 +365,9 @@ def notfound_404():
     return render_template('404.html')
 
 
+
+  
+
 @app.route('/subscribe', methods =['GET', 'POST'])
 def registet():
     msg = ''
@@ -376,7 +399,43 @@ def registet():
             ibm_db.bind_param(prep_stmt,6,longitude) 
             ibm_db.execute(prep_stmt)   
             msg = 'You have successfully registered !'
-            return render_template('success.html',msg)
+            try :
+                df=aqipredict(latitude,longitude)
+                df=df.rename(columns={'aqi':'AQI','so2':'SO2','no2':'NO2','pm10':'PM10','pm25':'PM2.5','co':'CO','o3':'O3','timestamp_local':'Date-Time'})
+                df=df[['Date-Time','AQI','PM10','PM2.5','SO2','NO2','CO','O3']]
+                srt= " <h3>Hellow "+name+",</h3> <h3 style='color:green'> Welcome to <a href='http://127.0.0.1:5000/'>Real Time Weather Fore Casting</a>!<br/>  <h3 style='color :blue'> Location : "+location+"<br> Latitude : "+latitude+" Longitude : "+longitude+"</h3>  <h2 style='color: purple'>----------------------------  One week updates on Air Quality Index ----------------------------</h2> "+df.to_html(classes='table table-stripped')+"  <h2 style='color: purple'> ---------------------------- One week updates on Weather ----------------------------</h2>"+df.to_html(classes='table table-stripped')+" "
+                from mailjet_rest import Client
+                import os
+                api_key = '45a5d104834c16dff39c75439e26a550'
+                api_secret = '40b35dc277f9b9e82ac3eb342767cc15'
+                mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+                data = {
+                  'Messages': [
+                    {
+                      "From": {
+                        "Email": "209x1a05h6@gprec.ac.in",
+                        "Name": "Real Time Weather Forecasting"
+                      },
+                      "To": [
+                        {
+                          "Email": email,
+                          "Name": name
+                        }
+                      ],
+                      "Subject": "Today Updates from Real Time Weather Forecasting",
+                      "TextPart": "My first Mailjet email",
+                      "HTMLPart": srt,
+                      "CustomID": "AppGettingStartedTest"
+                    }
+                  ]
+                }
+                result = mailjet.send.create(data=data)
+            except:
+                print("Error")
+            return render_template('success.html')
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
@@ -448,3 +507,35 @@ if __name__ == "__main__":
 #         msg = 'You have successfully registered !'
 #         print(msg)
 #         return render_template('success.html')
+
+
+
+
+# from mailjet_rest import Client
+# import os
+# api_key = '****************************1234'
+# api_secret = '****************************abcd'
+# mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+# data = {
+#   'Messages': [
+#     {
+#       "From": {
+#         "Email": "209x1a05h6@gprec.ac.in",
+#         "Name": "AQI"
+#       },
+#       "To": [
+#         {
+#           "Email": "209x1a05h6@gprec.ac.in",
+#           "Name": "AQI"
+#         }
+#       ],
+#       "Subject": "Greetings from Mailjet.",
+#       "TextPart": "My first Mailjet email",
+#       "HTMLPart": "<h3>Dear passenger 1, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!",
+#       "CustomID": "AppGettingStartedTest"
+#     }
+#   ]
+# }
+# result = mailjet.send.create(data=data)
+# print result.status_code
+# print result.json()
