@@ -52,7 +52,7 @@ def train():
 
 def aqipredict(latitude ,longitude):
     try: 
-        url = "https://air-quality.p.rapidapi.com/forecast/airquality"
+        url =urlapi() 
         querystring = {"lat":latitude,"lon":longitude,"hours":"16008"}
         headers = {
         "X-RapidAPI-Key": "4f7bb14128msh9b291ceae57c2d4p12b8b5jsn9580099f1b46",
@@ -74,20 +74,31 @@ def aqipredict(latitude ,longitude):
         os.remove("files/datasets/aqi_predicted_hour_data.csv")
         df_1.to_csv('files/datasets/aqi_predicted_hour_data.csv')
         df=pd.read_csv('files/datasets/aqi_predicted_hour_data.csv',index_col='datetime',parse_dates=True)
-        print(df.columns)
+        #print(df.columns)
     except Exception as e:
         print(e)
         df_past=pd.read_csv('files\\datasets\\aqi_predicted_hour_data.csv')
         df_past=df_past.iloc[:99]
     return df_past
 
-"""
-x,y=aqipredict(15.8281,78.0373,"kurnool")
-print(x)
-print(y)
 
-"""
+def weatherpredict(latitude,longitude):
+    try:
+        import requests
+        url = "https://forecast9.p.rapidapi.com/rapidapi/forecast/"+str(round(float(latitude),5))+"/"+str(round(float(longitude),5))+"/summary/"
+        headers = {
+            "X-RapidAPI-Key": "4f7bb14128msh9b291ceae57c2d4p12b8b5jsn9580099f1b46",
+            "X-RapidAPI-Host": "forecast9.p.rapidapi.com"
+        }
+        response = requests.request("GET", url, headers=headers)
+        import json
+        data=json.loads(response.text)
+        data=data['items']
+        import pandas as pd
+        df=pd.json_normalize(data)
+        return df
+    except Exception as e:
+        print("Error at weather api",e)
 
-
-def weatherpred():
-    print("Hellow")
+def urlapi():
+    return "https://air-quality.p.rapidapi.com/forecast/airquality"

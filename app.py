@@ -401,9 +401,10 @@ def registet():
             msg = 'You have successfully registered !'
             try :
                 df=aqipredict(latitude,longitude)
+                df1=weatherpredict(latitude,longitude)
                 df=df.rename(columns={'aqi':'AQI','so2':'SO2','no2':'NO2','pm10':'PM10','pm25':'PM2.5','co':'CO','o3':'O3','timestamp_local':'Date-Time'})
                 df=df[['Date-Time','AQI','PM10','PM2.5','SO2','NO2','CO','O3']]
-                srt= " <h3>Hellow "+name+",</h3> <h3 style='color:green'> Welcome to <a href='http://127.0.0.1:5000/'>Real Time Weather Fore Casting</a>!<br/>  <h3 style='color :blue'> Location : "+location+"<br> Latitude : "+latitude+" Longitude : "+longitude+"</h3>  <h2 style='color: purple'>----------------------------  One week updates on Air Quality Index ----------------------------</h2> "+df.to_html(classes='table table-stripped')+"  <h2 style='color: purple'> ---------------------------- One week updates on Weather ----------------------------</h2>"+df.to_html(classes='table table-stripped')+" "
+                srt= " <h3>Hellow "+name+",</h3> <h3 style='color:green'> Welcome to <a href='http://127.0.0.1:5000/'>Real Time Weather Fore Casting</a>!<br/>  <h3 style='color :blue'> Location : "+location+"<br> Latitude : "+latitude+" Longitude : "+longitude+"</h3>"+"<h2 style='color: purple'>----------------------------  One week Report on Air Quality Index ----------------------------</h2> "+(df.describe()).to_html(classes='table table-stripped')+"<h2 style='color: purple'>----------------------------  One week updates on Air Quality Index ----------------------------</h2> "+df.to_html(classes='table table-stripped')+"  <h2 style='color: purple'> ---------------------------- One week report on Weather ----------------------------</h2>"+(df1.describe()).to_html(classes='table table-stripped')+"  <h2 style='color: purple'> ---------------------------- One week updates on Weather ----------------------------</h2>"+df1.to_html(classes='table table-stripped')+" "
                 from mailjet_rest import Client
                 import os
                 api_key = '45a5d104834c16dff39c75439e26a550'
@@ -431,7 +432,7 @@ def registet():
                 }
                 result = mailjet.send.create(data=data)
             except:
-                print("Error")
+                print("Error at email sending")
             return render_template('success.html')
 
 
