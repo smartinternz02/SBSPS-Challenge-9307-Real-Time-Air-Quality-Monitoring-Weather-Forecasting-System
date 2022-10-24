@@ -102,3 +102,30 @@ def weatherpredict(latitude,longitude):
 
 def urlapi():
     return "https://air-quality.p.rapidapi.com/forecast/airquality"
+
+
+
+def newsupdates():
+    # climate news
+    try:
+        import requests
+        import json
+        import pandas as pd
+        url = "https://climate-change23.p.rapidapi.com/news"
+        headers = {
+            "X-RapidAPI-Key": "4f7bb14128msh9b291ceae57c2d4p12b8b5jsn9580099f1b46",
+            "X-RapidAPI-Host": "climate-change23.p.rapidapi.com"
+        }
+        response = requests.request("GET", url, headers=headers)
+        data=json.loads(response.text)
+        df=pd.json_normalize(data)
+        df_1=pd.read_csv('files/datasets/news.csv')
+        df_1=pd.concat([df,df_1])
+        df_1.drop_duplicates(subset=None, keep='first', inplace=False, ignore_index=False)
+        os.remove("files/datasets/news.csv")
+        df_1.to_csv('files/datasets/news.csv')
+        return df
+    except:
+        print()
+        df_1=pd.read_csv('files/datasets/news.csv')
+        return df_1

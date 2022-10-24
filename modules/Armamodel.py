@@ -28,7 +28,7 @@ def weather_pred():
   pred.plot( figsize=(12,4))
   pred.plot(legend=True)
   test['temp'].plot(legend=True)
-  print(test['temp'])
+  #print(test['temp'])
   j=0
   for i in range(len(test['temp'])):
       if(j>7):
