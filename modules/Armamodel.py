@@ -13,7 +13,7 @@ from datetime import time
 from datetime import date
 
 
-def weather_pred():
+def Predict_arimamodel_weather():
   df=pd.read_csv('files/datasets/weather.csv',index_col='datetime',parse_dates=True)
   df=df.dropna()
   #training the data
@@ -45,3 +45,44 @@ def weather_pred():
       elif(test['temp'][i]<=16 and test['temp'][i]<=32):
         print(date," ",test['temp'][i],test['weather'][i])
       j+=1
+  return test
+
+def Predict_arimamodel_aqi():
+  df=pd.read_csv('files/datasets/aqi_predicted_hour_data.csv',index_col='datetime',parse_dates=True)
+  df=df.dropna()
+  #training the data
+  train=df.iloc[:-30]
+  test=df.iloc[-30:]
+  Air_quality()
+  model=ARIMA(df['temp'], order=(2,0,2))
+  model=model.fit()
+  model.summary()
+  start=len(train)
+  end=len(train)+len(test)-1
+  pred=model.predict(start=start,end=end,type='levels')
+  pred.plot( figsize=(12,4))
+  pred.plot(legend=True)
+  test['temp'].plot(legend=True)
+  #print(test['temp'])
+  return test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def Air_quality():
+  print()

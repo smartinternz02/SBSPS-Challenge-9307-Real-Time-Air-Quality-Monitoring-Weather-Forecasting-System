@@ -181,10 +181,6 @@ def Air_quality():
   print(data["CO"]['concentration'])
 
 
-
-#  df.to_csv("aqi_data.csv")
-# logo convertion
-df=pd.read_csv('files/datasets/weather.csv')
 def weatherdays(test):
   j=0
   test['Day']=''
@@ -214,37 +210,62 @@ app = Flask(__name__)
 
 
 @app.route('/',methods=['GET','POST'])    
-@app.route('/home')
 def login():
-    global df
-    if flask.request.method == 'GET': 
+    if flask.request.method == 'POST': 
       try:
-        df=pd.read_csv('files/datasets/weather.csv')
-        location=request.args.get('location')
-        #df=pd.read_csv('files/datasets/weather.csv')
+        location=request.form.get('location')
+        latitude=request.form.get('latitude')
+        longitude=request.form.get('longitude')
+        print(location,longitude,latitude)
+        df=weather_pastdata(latitude,longitude)
+        print("home / ",df)
         weather=weatherdays(df)
-        #print(df)
         df=df[['timestamp_local','temp']]
         df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
-        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius)")
+        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius)"+location)
         graph_weather = json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
         fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of "+location)
         graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
 
         # ==========================================================
 
-
         # ==========================================================
-        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1)
-      except :
+        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1,location=location)
+      except Exception as e:
+        print("Error---------------- / ",e)
         df=pd.read_csv('files/datasets/weather.csv')
+        weather=weatherdays(df)
         df=df[['timestamp_local','temp']]
         df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
-        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius)")
+        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius) of "+location)
         graph_weather = json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
-        fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of Delhi")
+        fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of "+location)
         graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
-        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1)
+        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1,location=location)
+    else:
+      try:
+        df=weather_pastdata(28.7041,77.1025)
+        weather=weatherdays(df)
+        df=df[['timestamp_local','temp']]
+        df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
+        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius) of New Delhi")
+        graph_weather = json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
+        fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of New Delhi")
+        graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
+        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1,location="New Delhi")
+      except :
+        print("error home get")
+        df=pd.read_csv('files/datasets/weather.csv')
+        weather=weatherdays(df)
+        df=df[['timestamp_local','temp']]
+        df=df.rename(columns={'timestamp_local':'Timeline','temp':'Temperature'})
+        fig = px.line(df, x="Timeline", y="Temperature",title="Weather Forecasting (Celsius) of New Delhi")
+        graph_weather = json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
+        fig1 = px.line(weather, x="Day", y="temp",title="Weather Forecasting (Celsius) of New Delhi ")
+        graph_weather1 = json.dumps(fig1,cls=plotly.utils.PlotlyJSONEncoder)
+        return render_template('index.html',weather=weather.iloc[1:7],graph_weather=graph_weather,today=weather.iloc[0],graph_weather1=graph_weather1,location="New Delhi")
+
+
 
 
 

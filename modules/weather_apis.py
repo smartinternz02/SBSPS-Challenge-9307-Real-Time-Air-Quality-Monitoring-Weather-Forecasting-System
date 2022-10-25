@@ -6,6 +6,10 @@ import os
 import csv
 from datetime import datetime
 import datetime
+
+# def weather_apis(latitude,longitude):
+#     return "https://api.weatherbit.io/v2.0/forecast/hourly?&lat="+str(round(latitude,3))+"&lon="+str(round(longitude,3))+"&key=9432d6980f2744b7975b3867576b23ff&hours=168"
+
 def weatherbit(latitude,longitude):
     df=pd.read_csv('files/datasets/data.csv')
     print(df)
@@ -44,5 +48,30 @@ def rapidapi(location,latitude,longitude):
     df.to_csv('files/datasets/rapid.csv')
     return data
 
-def histroy_rapidapi():
-    return False
+
+
+
+def weather_pastdata(latitude,longitude):
+    try:
+        url = "https://api.weatherbit.io/v2.0/forecast/hourly?&lat="+str(latitude)+"&lon="+str(longitude)+"&key=9432d6980f2744b7975b3867576b23ff&hours=168"
+        response = requests.request("GET", url)
+        data=response.text
+        data=json.loads(data)
+        data=data['data']
+        df=pd.DataFrame(data)
+        print("weather bit data ",df)
+        os.remove("files/datasets/weather.csv")
+        df.to_csv('files/datasets/weather.csv')
+        return df
+    except Exception as e:
+        print("Erroe------------------------------------ ",e)
+        print("xxxxxxxxxxxxxxxxxxxxxxx")
+        df=pd.read_csv('files/datasets/weather.csv')
+        return df
+
+
+
+
+
+
+

@@ -30,8 +30,8 @@
 					<a href="/" class="branding">
 						<img src="/static/images/logo.png" alt="" class="logo">
 						<div class="logo-type">
-							<h1 class="site-title"></h1>
-							<small class="site-description"></small>
+							<h1 class="site-title">IBM </h1>
+							<small class="site-description">Real Time Weather Forecasting</small>
 						</div>
 					</a>
 
@@ -54,14 +54,15 @@
 
 			<div class="hero" data-bg-image="images/banner.png">
 				<div class="container">
-					<form action="/" class="find-location" method="GET">
+					<form action="/" class="find-location" method="POST">
 						<input type="text" name="location" id="autocomplete" placeholder="Find your location..." required>
 						<input type="hidden" id="latitude" name="latitude" class="form-control">
-						<input type="hidden" name="longitude" id="longitude" class="form-control"> <br>
+						<input type="hidden" name="longitude" id="longitude" class="form-control">
 						<button type="submit">Find</button>
 					</form>
 				</div>
-			</div>
+			</div> 
+
 			<div class="forecast-table">
 				<div class="container">
 					<div class="forecast-container">
@@ -71,7 +72,7 @@
 								<div class="date">{{ today['Day'] }}</div>
 							</div> <!-- .forecast-header -->
 							<div class="forecast-content">
-								<div class="location">New Delhi</div>
+								<div class="location">{{ location }}</div>
 								<div class="degree">
 									<div class="num">{{ today['temp'] }}<sup>o</sup>C</div>
 									<div class="forecast-icon">
@@ -109,26 +110,25 @@
 							<div class="forecast-content">
 								<div class="forecast-icon">
 								</div>
-
 								{% set description = weather['weather'][obj].split("'")  %}
-								{% if description[9] == 'Overcast clouds' %}
+								<!-- {{ description }} -->
+								{% if description[3] == 'Overcast clouds' %}
 								<img src="/static/images/icons/icon-6.svg" alt="" width=48>
-								{% elif description[9] == 'Broken clouds' %}
+								{% elif description[3] == 'Broken clouds' %}
 								<img src="/static/images/icons/icon-7.svg" alt="" width=48>
 								
-								{% elif description[9] == 'Few clouds' %}
+								{% elif description[3] == 'Few clouds' %}
 								<img src="/static/images/icons/icon-5.svg" alt="" width=48>
 								
-								{% elif description[9] == 'Scattered clouds' %}
+								{% elif description[3] == 'Scattered clouds' %}
 								<img src="/static/images/icons/icon-4.svg" alt="" width=48>
 								{% else %}
 								<img src="/static/images/icons/icon-2.svg" alt="" width=48>
 								{%endif%}
 								<div class="degree">{{ weather['temp'][obj] }}<sup>o</sup>C</div>
-								{{ description[9] }}
+								{{ description[3] }}
 
 								
-					  
 							</div>
 							
 						</div>
@@ -144,9 +144,8 @@
 				<div class="grid-item">
 					<div id="graph_weather" class="chart"></div>
 				</div>
-				<div class="grid-item">
-					<div id="graph_weather1" class="chart"></div>
-				</div>
+				
+		
 			</div>
 			</main> <!-- .main-content -->
 
@@ -196,8 +195,13 @@
 
 		
 		<script type="text/javascript">
+			var graph_weather = {{ graph_weather| safe}};
+			Plotly.plot('graph_weather',graph_weather,{});    
+		</script>
+
+		<script type="text/javascript">
 			var graph_weather1 = {{ graph_weather1| safe}};
-			Plotly.plot('graph_weather',graph_weather1,{});    
+			Plotly.plot('graph_weather1',graph_weather1,{});    
 		</script>
 		
 	</body>
