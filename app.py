@@ -436,7 +436,7 @@ def registet():
                     {
                       "From": {
                         "Email": "209x1a05h6@gprec.ac.in",
-                        "Name": "Real Time Weather Forecasting"
+                        "Name": "Real Time Air Quality and Weather Forecasting"
                       },
                       "To": [
                         {
@@ -444,8 +444,8 @@ def registet():
                           "Name": name
                         }
                       ],
-                      "Subject": "Today Updates from Real Time Weather Forecasting",
-                      "TextPart": "My first Mailjet email",
+                      "Subject": "Today Updates from Real Time Air Quality and Weather Forecasting",
+                      "TextPart": "Subscribe to get Latest Updates",
                       "HTMLPart": srt,
                       "CustomID": "AppGettingStartedTest"
                     }

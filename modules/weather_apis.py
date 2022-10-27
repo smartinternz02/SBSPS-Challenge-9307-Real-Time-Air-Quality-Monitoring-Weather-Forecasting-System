@@ -64,8 +64,6 @@ def weather_pastdata(latitude,longitude):
         df.to_csv('files/datasets/weather.csv')
         return df
     except Exception as e:
-        print("Erroe------------------------------------ ",e)
-        print("xxxxxxxxxxxxxxxxxxxxxxx")
         df=pd.read_csv('files/datasets/weather.csv')
         return df
 
